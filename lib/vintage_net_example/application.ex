@@ -48,29 +48,21 @@ defmodule VintageNetExample.Application do
   end
 
   def start_ssh() do
-    # Reuse keys from `nerves_firmware_ssh` so that the user only needs one
-    # config.exs entry.
-    authorized_keys =
-      Application.get_env(:nerves_firmware_ssh, :authorized_keys, [])
-      |> Enum.join("\n")
-
-    decoded_authorized_keys = :public_key.ssh_decode(authorized_keys, :auth_keys)
-
-    cb_opts = [authorized_keys: decoded_authorized_keys]
-
     # Nerves stores a system default iex.exs. It's not in IEx's search path,
     # so run a search with it included.
     iex_opts = [dot_iex_path: find_iex_exs()]
+
+    devpath = Nerves.Runtime.KV.get("nerves_fw_devpath") || "/dev/mmcblk0"
 
     # Reuse the system_dir as well to allow for auth to work with the shared
     # keys.
     :ssh.daemon(22, [
       {:id_string, :random},
-      {:key_cb, {Nerves.Firmware.SSH.Keys, cb_opts}},
-      {:system_dir, Nerves.Firmware.SSH.Application.system_dir()},
+      {:key_cb, VintageNetExample.Keys.key_cb()},
       {:shell, {Elixir.IEx, :start, [iex_opts]}},
       {:exec, &start_exec/3},
-      {:subsystems, [:ssh_sftpd.subsystem_spec(cwd: '/')]}
+      {:subsystems,
+       [:ssh_sftpd.subsystem_spec(cwd: '/'), NervesFirmwareSSH2.subsystem_spec(devpath: devpath)]}
     ])
   end
 

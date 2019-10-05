@@ -53,8 +53,9 @@ defmodule VintageNetExample.MixProject do
       {:vintage_net_wifi, "~> 0.7.0", targets: @all_targets},
       {:vintage_net_ethernet, "~> 0.7.0", targets: @all_targets},
       {:vintage_net_direct, "~> 0.7.0", targets: @all_targets},
-      {:nerves_firmware_ssh, "~> 0.2", targets: @all_targets},
-      {:nerves_time, "~> 0.2", targets: @all_targets},
+      {:nerves_firmware_ssh2, "~> 0.1",
+       github: "fhunleth/nerves_firmware_ssh2", branch: "ssh2", targets: @all_targets},
+      {:nerves_time, "~> 0.3.1", targets: @all_targets},
       {:mdns_lite, "~> 0.4", targets: @all_targets},
 
       # Dependencies for specific targets
